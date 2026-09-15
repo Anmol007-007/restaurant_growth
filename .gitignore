@@ -1,0 +1,20 @@
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Python bytecode & cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.pyc
+
+# IDE / Editor folders
+.vscode/
+.idea/
+.gemini/
+
+# OS generated files
+.DS_Store
+Thumbs.db
