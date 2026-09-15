@@ -3,7 +3,9 @@ import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
 
-# --- Page Configuration ---
+import os
+from pathlib import Path
+
 st.set_page_config(
     page_title="SkyCity Restaurant Growth & Strategic Classification",
     page_icon="🍽️",
@@ -13,14 +15,17 @@ st.set_page_config(
 # --- Load Data ---
 @st.cache_data
 def load_data():
-    return pd.read_csv('data/final_processed_restaurant_data.csv')
+    base_dir = Path(__file__).resolve().parent.parent
+    data_path = base_dir / "data" / "final_processed_restaurant_data.csv"
+    if not data_path.exists():
+        data_path = Path("data/final_processed_restaurant_data.csv")
+    return pd.read_csv(data_path)
 
 df = load_data()
 
 st.title("🍽️ SkyCity Restaurant Growth Modeling & Classification System")
 st.markdown("Unsupervised Machine Learning & Strategic Decision Support Platform")
 
-# --- Sidebar Filters ---
 st.sidebar.header("Filter Criteria")
 
 archetypes = st.sidebar.multiselect(
@@ -39,7 +44,6 @@ if 'Subregion' in df.columns:
 else:
     filtered_df = df[df['Archetype'].isin(archetypes)]
 
-# --- High-Level Metrics ---
 col1, col2, col3, col4 = st.columns(4)
 col1.metric("Total Restaurants", len(filtered_df))
 col2.metric("Average GPI Score", f"{filtered_df['GPI'].mean():.1f}")
@@ -48,7 +52,6 @@ col4.metric("At-Risk Restaurants", len(filtered_df[filtered_df['COGSRate'] > 0.3
 
 st.divider()
 
-# --- Main Layout: Visualizations ---
 tab1, tab2, tab3 = st.tabs(["🗺️ Cluster Mapping", "📊 Archetype Benchmarks", "🔍 Restaurant Inspector"])
 
 with tab1:
@@ -72,7 +75,6 @@ with tab1:
 with tab2:
     st.subheader("Archetype Performance Comparison")
     
-    # GPI Distribution by Archetype
     fig_box = px.box(
         filtered_df,
         x='Archetype',
@@ -107,7 +109,6 @@ with tab3:
         st.success(f"**Recommended Strategy:**\n{rest_info['Strategic_Recommendation']}")
 
     with c2:
-        # Radar chart for normalized metrics
         categories = ['Norm_Growth', 'Norm_CostResilience', 'Norm_ChannelBalance', 'Norm_Logistics']
         valid_cats = [cat for cat in categories if cat in rest_info]
         
@@ -127,6 +128,5 @@ with tab3:
             )
             st.plotly_chart(fig_radar, use_container_width=True)
 
-# --- Data Table View ---
 with st.expander("📄 View Raw Processed Dataset"):
     st.dataframe(filtered_df)
